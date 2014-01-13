@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+   <title>nodejs - facebook</title>
+</head>
+<body>
+	<div>
+           <button id="login">Login</button>
+           <button id="logout">Logout</button>
+	</div>
+    <br>
+    <span id="user-info" style="border:1px solid #888"></span>
+    <span id="fb-root"></span>
+
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+    <script src="http://connect.facebook.net/en_US/all.js"></script>
+    <script>
+	var currentdate = new Date();
+	
+        // initialize the library with the API key
+        FB.init({ appId:'412978775403680' });
+
+        // fetch the status on load
+        FB.getLoginStatus(handleSessionResponse);
+
+        $('#login').bind('click', function() {
+            FB.login(handleSessionResponse);
+        });
+
+        $('#logout').bind('click', function() {
+            FB.logout(handleSessionResponse);
+        });
+
+        // handle a session response from any of the auth related calls
+        function handleSessionResponse() {
+			
+			FB.api(
+			        {
+			            method: 'fql.query',
+			            query: 'SELECT uid, first_name, online_presence FROM user WHERE uid = me()'
+			        },
+			        function(data) {
+			            console.log(data);
+						$('#user-info').html(data[0].first_name + ' is Facebook ' + data[0].online_presence + ' on '  + currentdate.getDate() + "/"+currentdate.getMonth()+1 
++ "/" + currentdate.getFullYear() + " @ " 
++ currentdate.getHours() + ":" 
++ currentdate.getMinutes() + ":" + currentdate.getSeconds());
+			        }
+			);
+            FB.api('/me?fields=feed.fields(updated_time,type,link,message)', function(response) {
+                console.log(response);
+            }, {scope: 'read_stream'});
+        }
+    </script>
+</body>
+</html>
